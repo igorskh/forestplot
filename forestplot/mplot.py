@@ -11,7 +11,7 @@ from matplotlib import rcParams
 from matplotlib.pyplot import Axes
 
 from forestplot.arg_validators import check_data
-from forestplot.dataframe_utils import reverse_dataframe, sort_groups
+from forestplot.dataframe_utils import reverse_dataframe, sort_groups, sort_data
 from forestplot.graph_utils import (  # draw_ci,; draw_est_markers,; draw_pval_right,; draw_ref_xline,; draw_ylabel1,; draw_yticklabel2,; right_flush_yticklabels,
     despineplot,
     draw_alt_row_colors,
@@ -267,6 +267,8 @@ def _mpreprocess_dataframe(
     capitalize: Optional[str] = None,
     flush: bool = True,
     decimal_precision: int = 2,
+    sort: bool = False,
+    sortby: Optional[str] = None,
     **kwargs: Any,
 ) -> pd.core.frame.DataFrame:
     """
@@ -317,6 +319,20 @@ def _mpreprocess_dataframe(
     """
     if groupvar is not None:
         dataframe = sort_groups(dataframe, groupvar=groupvar, group_order=group_order)
+
+    dataframe = sort_data(
+        dataframe,
+        estimate,
+        groupvar=groupvar,
+        sort=sort,
+        sortby=sortby,
+        sortascend=False
+    )
+
+    if groupvar is not None:  # Make groups
+        dataframe = normalize_varlabels(
+            dataframe=dataframe, varlabel=groupvar, capitalize=capitalize
+        )
         dataframe = insert_group_model(
             dataframe=dataframe, groupvar=groupvar, varlabel=varlabel, model_col=model_col
         )
